@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:annotation-config />
+    <context:component-scan base-package="jsoupParser"/>
+
+    <bean id="url" class="jsoupParser.service.UrlService">
+        <property name="mainUrl" value="https://auto.ru/"/>
+        <property name="brandClassSeparator" value="div.columns.columns_count_5.mmm-switcher__list.mmm-switcher__list_all"/>
+        <property name="modelClassSeparator" value="strong.showcase-modify-title"/>
+        <property name="carBrendAnchor" value="span.breadcrumbs-l_title"/>
+        <property name="carModelAnchor" value="span.breadcrumbs-l.breadcrumbs-l_text"/>
+        <property name="modelGenerationAnchor1" value="a.showcase-generation-title-link"/>
+        <property name="modelGenerationAnchor2" value="td.showcase-list-cell.showcase-list-cell_v2_releaseperiod"/>
+        <property name="modelGenerationAnchor3" value="span.showcase-generation-dates"/>
+    </bean>
+
+</beans>
