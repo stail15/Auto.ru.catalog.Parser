@@ -8,13 +8,9 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-/**
- * Created by stail on 15.02.2016.
- */
+
 public class BrandUrlParser implements Runnable {
 
     private Element carBrandLink;
@@ -31,11 +27,9 @@ public class BrandUrlParser implements Runnable {
 
     @Override
     public void run() {
-        List<String> allModelsUrl = new ArrayList<String>();
+        List<String> allModelsUrl = new ArrayList<>();
 
-        StringBuilder strb = new StringBuilder("https:");
-        strb.append(carBrandLink.attr("href").replace("all/", ""));
-        String carBrandUrl = strb.toString();
+        String carBrandUrl = "https:" + carBrandLink.attr("href").replace("all/", "");
 
         Document carBrandDoc = null;
 
@@ -52,7 +46,7 @@ public class BrandUrlParser implements Runnable {
             }
         }
 
-        String separator = Main.urlServise.getModelClassSeparator();
+        String separator = Main.urlService.getModelClassSeparator();
         Elements modelHtml = carBrandDoc.select(separator);
         for(Element el : modelHtml){
             String modelUrl = el.select("a").first().attr("abs:href");

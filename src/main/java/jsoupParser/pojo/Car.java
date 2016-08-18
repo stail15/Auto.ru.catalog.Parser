@@ -2,9 +2,7 @@ package jsoupParser.pojo;
 
 import java.util.Map;
 
-/**
- * Created by stail on 15.02.2016.
- */
+
 public class Car {
 
     private String brand;
@@ -45,7 +43,7 @@ public class Car {
         this.img = img;
     }
 
-    public Map<String, String> getModelGenerations() {
+    private Map<String, String> getModelGenerations() {
         return modelGenerations;
     }
 

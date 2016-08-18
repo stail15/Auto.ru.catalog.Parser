@@ -2,9 +2,7 @@ package jsoupParser.service;
 
 import java.util.List;
 
-/**
- * Created by stail on 15.02.2016.
- */
+
 public class UrlService {
     private String mainUrl;
     private String brandClassSeparator;
@@ -86,5 +84,20 @@ public class UrlService {
 
     public void setModelGenerationAnchor3(String modelGenerationAnchor3) {
         this.modelGenerationAnchor3 = modelGenerationAnchor3;
+    }
+
+    @Override
+    public String toString() {
+        return "UrlService{" +"\r\n"+
+                "mainUrl='" + mainUrl + '\'' +"\r\n"+
+                ", brandClassSeparator='" + brandClassSeparator + '\'' +"\r\n"+
+                ", modelClassSeparator='" + modelClassSeparator + '\'' +"\r\n"+
+                ", carBrendAnchor='" + carBrendAnchor + '\'' +"\r\n"+
+                ", carModelAnchor='" + carModelAnchor + '\'' +"\r\n"+
+                ", modelGenerationAnchor1='" + modelGenerationAnchor1 + '\'' +"\r\n"+
+                ", modelGenerationAnchor2='" + modelGenerationAnchor2 + '\'' +"\r\n"+
+                ", modelGenerationAnchor3='" + modelGenerationAnchor3 + '\'' +"\r\n"+
+                ", modelUrlList=" + modelUrlList +
+                '}';
     }
 }

@@ -1,5 +1,6 @@
 package jsoupParser;
 
+import jsoupParser.configReader.XMLReader;
 import jsoupParser.pojo.Car;
 import jsoupParser.service.BrandUrlParser;
 import jsoupParser.service.ModelUrlParser;
@@ -7,8 +8,6 @@ import jsoupParser.service.UrlService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.jsoup.nodes.Document;
 
 import java.io.BufferedWriter;
@@ -16,37 +15,39 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 
 public class Main {
 
+    private static Logger logger = Logger.getLogger(XMLReader.class.getName());
     public static List<String> modelsUrl;
-    public static UrlService urlServise;
+    public static UrlService urlService;
     public static Set<Car> carList;
 
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws Exception{
 
-        ApplicationContext context = new ClassPathXmlApplicationContext("spring-config.xml");
-        urlServise = context.getBean(UrlService.class);
+        XMLReader xmlReader = new XMLReader();
+        xmlReader.loadConfiguration("/urlService-config.xml");
 
-        modelsUrl = new ArrayList<String>();
+        urlService = (UrlService)xmlReader.loadBean(UrlService.class);
+
+
+        modelsUrl = new ArrayList<>();
         modelsUrl = Collections.synchronizedList(modelsUrl);
 
-        carList = new TreeSet<Car>(new Comparator<Car>() {
-            @Override
-            public int compare(Car o1, Car o2) {
-                return o1.toString().compareTo(o2.toString());
-            }
+        carList = new TreeSet<>((o1, o2) -> {
+            return o1.toString().compareTo(o2.toString());
         });
         carList = Collections.synchronizedSet(carList);
 
-        ArrayList<Thread> brandThreadsList = new ArrayList<Thread>();
-        ArrayList<Thread> modelThreadsList = new ArrayList<Thread>();
+        ArrayList<Thread> brandThreadsList = new ArrayList<>();
+        ArrayList<Thread> modelThreadsList = new ArrayList<>();
 
 
-        String mainUrl = urlServise.getMainUrl();
-        String brandSeparator = urlServise.getBrandClassSeparator();
+        String mainUrl = urlService.getMainUrl();
+        String brandSeparator = urlService.getBrandClassSeparator();
         Elements allBrandsUrl = getAllBrandsUrl(mainUrl, brandSeparator); //getting list of <a> tag with URL of all car brands
 
         for (Element link : allBrandsUrl) { //searching URLs for each model in brand;
@@ -96,23 +97,23 @@ public class Main {
             document=Jsoup.connect(mainUrl).get();
         }
         catch (IOException ex){System.out.println("Error occurred while getting all car brands." );}
-        Element modelList = document.select(brandSeparator).first(); // get div.* which contains URLs for all car brands;
-        Elements elements = modelList.getElementsByTag("a");
-        return elements;
+        Element modelList = document.select(brandSeparator).first();// get div.* which contains URLs for all car brands;
+        return modelList.getElementsByTag("a");
     }
 
     private static void writeToFile(Set<Car> carList){
 
-        String fileDirectiry = "D:\\Auto.ru_16.02";
-        File path = new File(fileDirectiry);
-        File file = new File(fileDirectiry+"\\CarModelsDate.txt");
+        String fileDirectory = "D:\\Auto.ru_16.02";
+        File path = new File(fileDirectory);
+        File file = new File(fileDirectory+"\\CarModelsDate.txt");
         BufferedWriter fileWriter=null;
 
+        //noinspection ResultOfMethodCallIgnored
         path.mkdirs();
         try {
             fileWriter = new BufferedWriter(new FileWriter(file));
         }
-        catch (IOException ex){System.out.println("Unnable to write file");}
+        catch (IOException ex){System.out.println("Unable to write file");}
 
         for(Car car :carList){
            try {
@@ -122,6 +123,7 @@ public class Main {
 
         }
         try {
+            assert fileWriter != null;
             fileWriter.close();
         }
         catch (IOException ex){ex.getMessage();}
