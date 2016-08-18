@@ -1,9 +1,19 @@
 package jsoupParser.configReader;
 
-
+/**
+ * Enum with {@link Class} types of fields in {@code object}.
+ */
 public enum FieldType {
+
     STRING,INTEGER,DOUBLE,LONG,BOOLEAN;
 
+    /**
+     * Returns {@link FieldType} object which represent {@link Class} type of {@link java.lang.reflect.Field} object.
+     *
+     * @param clazz {@link Class} object which represents class type of {@link java.lang.reflect.Field} object.
+     *
+     * @return {@link FieldType} object which represent {@link Class} type of {@link java.lang.reflect.Field} object.
+     */
     public static FieldType getType( Class clazz){
         String className=clazz.getName();
 

@@ -269,7 +269,7 @@ public class XMLReader {
      * @param clazz the {@link Class} type of  object for which we want to load fields values from configuration file.
      * @param document {@link Document} object associated with configuration file.
      *
-     * @return {@link Element} object matching with input parameter {@code clazz} or {@null} if there is no matching.
+     * @return {@link Element} object matching with input parameter {@code clazz} or {@code null} if there is no matching.
      */
     private Element getElementByClassName(Class clazz, Document document){
 

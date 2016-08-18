@@ -159,7 +159,7 @@ public class ModelUrlParser implements Runnable {
 
         Map<String,String> restyleMap = new HashMap<>();
         Map<String,String> modelInfoCopy = (HashMap)((HashMap)generations).clone() ;
-        byte[] buff = new byte[]{-48,-27,-15,-14,-32}; // cleaning word "Реста" in Cp1251 charset for looking matches in models' generations
+        byte[] buff = new byte[]{-48,-27,-15,-14,-32}; // cleaning word "Resta" in Cp1251 charset for looking matches in models' generations
         String match = null;
 
        try {
