@@ -4,10 +4,12 @@ import jsoupParser.cookies.Cookies;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,7 +19,8 @@ import java.util.logging.Logger;
 public class ModelsParser implements Runnable{
 
     private static Logger logger = Logger.getLogger(BrandsParser.class.getName());
-    private transient static Cookies cookies;
+    private Map<String,String> models = Collections.synchronizedMap(new HashMap<String, String>());
+    private static Cookies cookies;
     private static org.w3c.dom.Document resultDocument;
     private static ArrayList<Thread> threadList;
     private static String modelSeparator;
@@ -37,6 +40,7 @@ public class ModelsParser implements Runnable{
 
         String brandUrl = brandElement.getAttribute("href");
 
+
         logger.info("Parsing "+brandUrl+" ...");
 
         ConnectionService connectionService = new ConnectionService(cookies);
@@ -44,10 +48,10 @@ public class ModelsParser implements Runnable{
         Elements modelList = document.select(modelSeparator);
 
         if(modelList.size()>0){
-           // modelList.forEach(element -> System.out.println(element));
+
             modelList.forEach(element -> getModel(element));
 
-            logger.info(brandUrl + "was parsed - " + modelList.size() + "car models were found");
+            logger.info(brandUrl + " was parsed - " + models.size() + " car models were found");
         }
         else {
             logger.warning(brandUrl+" was not parsed");
@@ -56,6 +60,7 @@ public class ModelsParser implements Runnable{
     }
 
     public void parseAllModels(){
+
 
         threadList = new ArrayList<>();
         NodeList brandList = resultDocument.getElementsByTagName("brand");
@@ -67,13 +72,14 @@ public class ModelsParser implements Runnable{
                 Thread thread = new Thread(new ModelsParser(brandElement));
                 threadList.add(thread);
 
+
             }
         }
 
         if(!threadList.isEmpty()){
-            threadList.forEach(thread -> thread.run());
-           // threadList.forEach(thread -> ModelsParser.startThread(thread));
-           // threadList.forEach(thread -> ModelsParser.joinThread(thread));
+           // threadList.forEach(thread -> thread.run());
+           threadList.forEach(thread -> ModelsParser.startThread(thread));
+           threadList.forEach(thread -> ModelsParser.joinThread(thread));
         }
 
     }
@@ -98,15 +104,19 @@ public class ModelsParser implements Runnable{
 
     private void getModel(org.jsoup.nodes.Element modelElement){
 
-
         String catalogUrl = resultDocument.getDocumentElement().getAttribute("href");
         String carModelUrl = catalogUrl+modelElement.attr("href").split("/")[2]+"/";
-        String carBrand = modelElement.ownText();
+        String carModel = modelElement.ownText();
 
-        org.w3c.dom.Element brand = resultDocument.createElement("model");
-        brand.setAttribute("name",carBrand);
-        brand.setAttribute("href",carModelUrl);
-        brandElement.appendChild(brand);
+        if(!this.models.containsKey(carModel)){
+            org.w3c.dom.Element brand = resultDocument.createElement("model");
+            brand.setAttribute("name",carModel);
+            brand.setAttribute("href",carModelUrl);
+            this.brandElement.appendChild(brand);
+            
+            this.models.put(carModel,carModelUrl);
+        }
+
     }
 
 }

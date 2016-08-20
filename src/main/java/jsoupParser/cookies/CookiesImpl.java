@@ -62,6 +62,7 @@ public class CookiesImpl implements Cookies{
         Map<String,String>cookies = null;
 
         String sqlQuery = "SELECT * FROM cookies WHERE host_key LIKE \"%"+hostName+"%\"";
+       // String sqlQuery = "SELECT * FROM cookies";
 
         try {
             cookies =SQLiteConnector.getCookies(sqlQuery);
@@ -71,5 +72,10 @@ public class CookiesImpl implements Cookies{
         }
 
         return cookies;
+    }
+
+    @Override
+    public void addNewCookies(Map<String,String> cookiesToAdd){
+        cookiesToAdd.forEach((k,v)->cookies.put(k,v));
     }
 }

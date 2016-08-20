@@ -24,19 +24,8 @@ public class ConnectionService {
     public Document getDocument(String url){
 
         Connection connection = Jsoup.connect(url);
+        this.setBrowserHeaders(connection);
 
-        connection.cookies(cookies.getCookies())
-                  .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36")
-                  .header("Accept", "text/html,application/xhtml+ xml, application/xml;q=0.9,image/webp,*/*;q=0.8")
-                  .header("Accept-Encoding", "gzip, deflate, sdch, br")
-                  .header("Accept-Language","ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4")
-                  .header("Cache-Control","no-cache")
-                  .header("Connection","keep-alive")
-                  .header("DNT","1")
-                  .header("Host", "auto.ru")
-                  .header("Pragma","no-cache")
-                  .header("Upgrade-Insecure-Requests","1")
-                .followRedirects(true);
 
         Connection.Response response;
         try {
@@ -48,7 +37,7 @@ public class ConnectionService {
             htmlPage = response.parse();
 
             Connection.Request request= connection.request();
-            request.headers().forEach((k,v)->logger.info(k+" : "+v));
+            cookies.addNewCookies(request.cookies());
 
             //logger.info(htmlPage.toString());
         }
@@ -58,6 +47,23 @@ public class ConnectionService {
 
 
         return htmlPage;
+    }
+
+    private void setBrowserHeaders(Connection connection){
+        connection.validateTLSCertificates(true)
+                 .cookies(cookies.getCookies())
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36")
+                .header("Accept", "text/html,application/xhtml+ xml, application/xml;q=0.9,image/webp,*/*;q=0.8")
+                .header("Accept-Encoding", "gzip, deflate, sdch, br")
+                .header("Accept-Language","ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4")
+                .header("Cache-Control","no-cache")
+                .header("Connection","keep-alive")
+                .header("DNT","1")
+                .header("Host", "auto.ru")
+                .header("Pragma","no-cache")
+                .header("Upgrade-Insecure-Requests","1")
+                .followRedirects(true);
+
     }
 
 }

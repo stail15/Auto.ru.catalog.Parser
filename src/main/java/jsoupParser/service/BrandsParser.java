@@ -5,6 +5,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -13,6 +16,7 @@ import java.util.logging.Logger;
 public class BrandsParser {
 
     private static Logger logger = Logger.getLogger(BrandsParser.class.getName());
+    private Map<String,String> brands = Collections.synchronizedMap(new HashMap<String, String>());
     private static Cookies cookies;
     private static org.w3c.dom.Document resultDocument;
 
@@ -28,30 +32,34 @@ public class BrandsParser {
         Elements brandList = document.select(brandSeparator);
 
         if(brandList.size()>0){
-            logger.info(url + "was parsed - " + brandList.size() + " car brands were found");
-            // modelList.forEach(element -> System.out.println(element));
-            brandList.forEach(element -> getBrand(element));
+
+            brandList.forEach(element -> this.getBrand(element));
+            logger.info(url + " was parsed - " + brands.size() + " car brands were found");
+
         }
         else {
-            logger.warning(url+"was not parsed");
+            logger.warning(url+" was not parsed");
         }
 
 
 
     }
 
-    private static void getBrand(Element brandElement){
+    private void getBrand(Element brandElement){
 
         org.w3c.dom.Element rootElement = resultDocument.getDocumentElement();
-
         String catalogUrl = rootElement.getAttribute("href");
         String carBrandUrl = catalogUrl+brandElement.attr("href").split("/")[2]+"/";
         String carBrand = brandElement.ownText();
 
-        org.w3c.dom.Element brand = resultDocument.createElement("brand");
-        brand.setAttribute("name",carBrand);
-        brand.setAttribute("href", carBrandUrl);
-        rootElement.appendChild(brand);
+        if(!this.brands.containsKey(carBrand)){
+            org.w3c.dom.Element brand = resultDocument.createElement("brand");
+            brand.setAttribute("name",carBrand);
+            brand.setAttribute("href", carBrandUrl);
+            rootElement.appendChild(brand);
+            this.brands.put(carBrand,carBrandUrl);
+        }
+
 
     }
 }

@@ -10,5 +10,6 @@ public interface Cookies {
     public void setHostName(String hostName);
     public Map<String,String > getCookies();
     public void setCookies(Map<String,String> cookiesToSet);
+    public void addNewCookies(Map<String,String> cookiesToAdd);
 
 }

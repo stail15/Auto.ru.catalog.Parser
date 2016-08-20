@@ -56,13 +56,18 @@ public class Main {
 
         logger.info("Parsing car brands...");
         BrandsParser brandsParser = new BrandsParser(cookies,resultDocument);
-        brandsParser.parseAllBrands(mainUrl,brandSeparator);
+        brandsParser.parseAllBrands(mainUrl, brandSeparator);
         logger.info("Car brands was parsed.");
 
         logger.info("Parsing car models...");
         ModelsParser modelsParser = new ModelsParser(cookies,resultDocument,modelSeparator);
         modelsParser.parseAllModels();
         logger.info("Car models was parsed.");
+
+        NodeList nodeList = resultDocument.getElementsByTagName("model");
+        for(int i=0;i<nodeList.getLength();i++){
+           System.out.println(((org.w3c.dom.Element) nodeList.item(i)).getAttribute("href"));
+        }
 
         System.exit(0);
 

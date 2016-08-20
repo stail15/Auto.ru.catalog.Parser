@@ -4,7 +4,7 @@
         <property name="mainUrl" value="https://auto.ru/"/>
         <property name="cookiesHostName" value="auto.ru"/>
         <property name="brandClassSeparator" value="a.link.link_metrika.link_theme_auto.link__control.i-bem"/>
-        <property name="modelClassSeparator" value="a.link.link_pseudo.link_theme_auto.search-form-v2-item.link__control.i-bem.link_js_inited.link_hovered"/>
+        <property name="modelClassSeparator" value="a.link.link_pseudo.link_theme_auto.search-form-v2-item.link__control.i-bem"/>
         <property name="carBrendAnchor" value="span.breadcrumbs-l_title"/>
         <property name="carModelAnchor" value="span.breadcrumbs-l.breadcrumbs-l_text"/>
         <property name="modelGenerationAnchor1" value="a.showcase-generation-title-link"/>
