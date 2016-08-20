@@ -2,8 +2,9 @@
 <beans>
     <bean id="url" class="jsoupParser.service.UrlService">
         <property name="mainUrl" value="https://auto.ru/"/>
-        <property name="brandClassSeparator" value="div.columns.columns_count_5.mmm-switcher__list.mmm-switcher__list_all"/>
-        <property name="modelClassSeparator" value="strong.showcase-modify-title"/>
+        <property name="cookiesHostName" value="auto.ru"/>
+        <property name="brandClassSeparator" value="a.link.link_metrika.link_theme_auto.link__control.i-bem"/>
+        <property name="modelClassSeparator" value="a.link.link_pseudo.link_theme_auto.search-form-v2-item.link__control.i-bem.link_js_inited.link_hovered"/>
         <property name="carBrendAnchor" value="span.breadcrumbs-l_title"/>
         <property name="carModelAnchor" value="span.breadcrumbs-l.breadcrumbs-l_text"/>
         <property name="modelGenerationAnchor1" value="a.showcase-generation-title-link"/>
@@ -12,3 +13,4 @@
     </bean>
 
 </beans>
+

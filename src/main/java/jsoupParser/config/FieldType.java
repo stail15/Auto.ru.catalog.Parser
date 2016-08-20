@@ -1,4 +1,4 @@
-package jsoupParser.configReader;
+package jsoupParser.config;
 
 /**
  * Enum with {@link Class} types of fields in {@code object}.

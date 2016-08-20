@@ -5,6 +5,7 @@ import java.util.List;
 
 public class UrlService {
     private String mainUrl;
+    private String cookiesHostName;
     private String brandClassSeparator;
     private String modelClassSeparator;
     private String carBrendAnchor;
@@ -84,6 +85,14 @@ public class UrlService {
 
     public void setModelGenerationAnchor3(String modelGenerationAnchor3) {
         this.modelGenerationAnchor3 = modelGenerationAnchor3;
+    }
+
+    public String getCookiesHostName() {
+        return cookiesHostName;
+    }
+
+    public void setCookiesHostName(String cookiesHostName) {
+        this.cookiesHostName = cookiesHostName;
     }
 
     @Override

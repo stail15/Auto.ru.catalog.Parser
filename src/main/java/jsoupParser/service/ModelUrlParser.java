@@ -63,7 +63,7 @@ public class ModelUrlParser implements Runnable {
         car.setModel(model);
         generations= analyzeGenerations(generations, car);
         car.setModelGenerations(generations);
-        Main.carList.add(car);
+      //  Main.carList.add(car);
 
     }
 

@@ -1,4 +1,4 @@
-package jsoupParser.configReader;
+package jsoupParser.config;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,12 +20,12 @@ import java.util.logging.Logger;
 /**
  * Loads configuration from XML file and produces bean objects according to it.
  */
-public class XMLReader {
+public class Context {
 
     /**
      * {@code Logger} object that logs the program execution process.
      */
-    private static final Logger logger = Logger.getLogger(XMLReader.class.getName());
+    private static final Logger logger = Logger.getLogger(Context.class.getName());
 
     /**
      * {@code DocumentBuilder} for creating {@link Document} object;
@@ -38,12 +38,12 @@ public class XMLReader {
     private Document document;
 
     /**
-     * Initializes a newly created {@link XMLReader} object.
-     * Initializes static{@code documentBuilderFactory} and {@code documentBuilder} fields of {@link XMLReader} class.
+     * Initializes a newly created {@link Context} object.
+     * Initializes static{@code documentBuilderFactory} and {@code documentBuilder} fields of {@link Context} class.
      *
      * @throws ParserConfigurationException in case of error occurred while creating {@link DocumentBuilder} object.
      */
-    public XMLReader()throws ParserConfigurationException{
+    public Context()throws ParserConfigurationException{
 
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -62,10 +62,12 @@ public class XMLReader {
     public boolean loadConfiguration(String fileName) throws SAXException, IOException{
         File configXML;
         try {
-           configXML = new File(XMLReader.class.getResource(fileName).getFile());
+            configXML = new File(Context.class.getResource(fileName).getFile());
+           // configXML = new File(ClassLoader.getSystemResource(fileName).getFile());
+
         }
         catch (NullPointerException ex){
-            String exceptionMsg = "Configuration file " + fileName + " was not found";
+            String exceptionMsg = "Configuration file \"" + fileName + "\" was not found";
             logger.log(Level.SEVERE,exceptionMsg);
             throw new FileNotFoundException(exceptionMsg);
         }
@@ -93,7 +95,7 @@ public class XMLReader {
         Object object = null;
         try {
             //noinspection NullArgumentToVariableArgMethod
-            object = clazz.getConstructor(null).newInstance(null);
+            object = clazz.getConstructor().newInstance();
             object = this.initializeBean(clazz,object);
         }
         catch (IllegalAccessException | InstantiationException | InvocationTargetException ex){
@@ -165,7 +167,7 @@ public class XMLReader {
         String fieldName = objectField.getAttribute("name");
         String fieldValue = objectField.getAttribute("value");
 
-        String setterMethodName = XMLReader.getSetterMethod(fieldName);
+        String setterMethodName = Context.getSetterMethod(fieldName);
 
         try {
             Field field = clazz.getDeclaredField(fieldName);
@@ -258,8 +260,9 @@ public class XMLReader {
 
         char[] chars = fieldName.trim().toCharArray();
         chars[0] = Character.toUpperCase(chars[0]);
+        String methodName = new StringBuilder("set").append(chars).toString();
 
-        return "set" + chars;
+        return methodName;
     }
 
     /**

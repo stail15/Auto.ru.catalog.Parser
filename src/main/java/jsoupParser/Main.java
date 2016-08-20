@@ -1,69 +1,70 @@
 package jsoupParser;
 
-import jsoupParser.configReader.XMLReader;
+import jsoupParser.config.Context;
+import jsoupParser.cookies.Cookies;
+import jsoupParser.cookies.CookiesImpl;
 import jsoupParser.pojo.Car;
-import jsoupParser.service.BrandUrlParser;
-import jsoupParser.service.ModelUrlParser;
-import jsoupParser.service.UrlService;
+import jsoupParser.service.*;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.jsoup.nodes.Document;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 
 public class Main {
 
-    private static Logger logger = Logger.getLogger(XMLReader.class.getName());
+    private static Logger logger = Logger.getLogger(Context.class.getName());
     public static List<String> modelsUrl;
     public static UrlService urlService;
-    public static Set<Car> carList;
+    private static Set<Car> carList;
+    private transient static Cookies cookies;
+    private static ArrayList<Thread> brandThreadsList;
+    private static ArrayList<Thread> modelThreadsList;
+    private static org.w3c.dom.Document resultDocument;
 
 
     public static void main(String[] args) throws Exception{
 
-        XMLReader xmlReader = new XMLReader();
-        xmlReader.loadConfiguration("/urlService-config.xml");
+        Main.configLogger("/logging.properties");
 
-        urlService = (UrlService)xmlReader.loadBean(UrlService.class);
-
-
-        modelsUrl = new ArrayList<>();
-        modelsUrl = Collections.synchronizedList(modelsUrl);
-
-        carList = new TreeSet<>((o1, o2) -> {
-            return o1.toString().compareTo(o2.toString());
-        });
-        carList = Collections.synchronizedSet(carList);
-
-        ArrayList<Thread> brandThreadsList = new ArrayList<>();
-        ArrayList<Thread> modelThreadsList = new ArrayList<>();
+        urlService = Main.getUrlService("/url-config.xml");
+        resultDocument = Main.createResultDocument();
+        cookies = new CookiesImpl(urlService.getCookiesHostName());
+        modelsUrl = Collections.synchronizedList(new ArrayList<>());
+        carList = Collections.synchronizedSet(new TreeSet<>((o1, o2) -> o1.toString().compareTo(o2.toString())));
+        brandThreadsList = new ArrayList<>();
+        modelThreadsList = new ArrayList<>();
 
 
         String mainUrl = urlService.getMainUrl();
         String brandSeparator = urlService.getBrandClassSeparator();
-        Elements allBrandsUrl = getAllBrandsUrl(mainUrl, brandSeparator); //getting list of <a> tag with URL of all car brands
+        String modelSeparator = urlService.getModelClassSeparator();
 
-        for (Element link : allBrandsUrl) { //searching URLs for each model in brand;
-            BrandUrlParser urlParser = new BrandUrlParser();
-            urlParser.setElement(link);
-            Thread brandThread = new Thread(urlParser);
-            brandThread.start();
-            brandThreadsList.add(brandThread);
-        }
+        logger.info("Parsing car brands...");
+        BrandsParser brandsParser = new BrandsParser(cookies,resultDocument);
+        brandsParser.parseAllBrands(mainUrl,brandSeparator);
+        logger.info("Car brands was parsed.");
 
-        for(Thread th :brandThreadsList){ // the main thread is waiting for other threads
-            try {
-                th.join();
-            }
-            catch (InterruptedException ex){ex.getMessage();}
-        }
+        logger.info("Parsing car models...");
+        ModelsParser modelsParser = new ModelsParser(cookies,resultDocument,modelSeparator);
+        modelsParser.parseAllModels();
+        logger.info("Car models was parsed.");
+
+        System.exit(0);
 
         System.out.println("Final size is " + modelsUrl.size());
 
@@ -91,14 +92,72 @@ public class Main {
         writeToFile(carList);
     }
 
-    private static Elements getAllBrandsUrl (String mainUrl, String brandSeparator){
-        Document document = null;
+    /**
+     * Returns {@code true} if {@link java.util.logging.LogManager LogManager} was successfully configured; returns false otherwise.<br>
+     * Configures LogManager object
+     * in accordance with file "logging.properties" in classpath.
+     *
+     * @param propertiesFile the string representation of the relative path to the {@code *.properties} file
+     *                                     to configure {@link java.util.logging.LogManager LogManager}.
+     * @return boolean {@code true} if LogManager was successfully configured; returns {@code false} otherwise.
+     */
+    public static boolean configLogger(String propertiesFile){
+        boolean configured = false;
         try {
-            document=Jsoup.connect(mainUrl).get();
+
+            LogManager.getLogManager().readConfiguration(Main.class.getResourceAsStream(propertiesFile));
+            configured = true;
+
+        } catch (NullPointerException ex) {
+            System.err.println(": Failed to configure LogManager - file \"logging.properties\" does not exist:");
+            ex.printStackTrace();
+        } catch (IOException ex){
+            System.err.println(": LogManager failed to read properties file \"logging.properties\":");
+            ex.printStackTrace();
+        } catch (SecurityException ex){
+            System.err.println(": LogManager does not have LoggingPermission(\"control\"):");
+            ex.printStackTrace();
         }
-        catch (IOException ex){System.out.println("Error occurred while getting all car brands." );}
-        Element modelList = document.select(brandSeparator).first();// get div.* which contains URLs for all car brands;
-        return modelList.getElementsByTag("a");
+
+        logger.info("Logger was configured");
+        return configured;
+    }
+
+
+    private static org.w3c.dom.Document createResultDocument(){
+        org.w3c.dom.Document resultDocument = null;
+        logger.info("Preparing result document:");
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder;
+
+
+        try {
+            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        }
+        catch (ParserConfigurationException ex){
+            logger.log(Level.SEVERE, " - the result document wasn't created:");
+            logger.log(Level.SEVERE, " - the application execution is stopped because of the ParserConfigurationException", ex);
+            return null;
+        }
+        if(documentBuilder!=null){
+            resultDocument = documentBuilder.newDocument();
+            org.w3c.dom.Element rootElement = resultDocument.createElement("cars");
+            rootElement.setAttribute("href","https://auto.ru/catalog/");
+            resultDocument.appendChild(rootElement);
+        }
+
+        logger.info("- result document was prepared");
+
+            return resultDocument;
+    }
+
+
+    private static UrlService getUrlService(String filepath) throws Exception{
+        Context context = new Context();
+        context.loadConfiguration(filepath);
+        UrlService urlService = (UrlService)context.loadBean(UrlService.class);
+
+        return urlService;
     }
 
     private static void writeToFile(Set<Car> carList){
