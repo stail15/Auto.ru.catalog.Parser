@@ -14,11 +14,16 @@ import java.util.logging.Logger;
 public class ConnectionService {
 
     private static Logger logger = Logger.getLogger(ConnectionService.class.getName());
+    private static volatile   long lastConnectionTime = 0;
+    private static int connectionLimit = 70;
+    private static long pauseBtwConnection;
     private Document htmlPage;
-    private transient Cookies cookies;
+    private volatile Cookies cookies;
+
 
     public ConnectionService(Cookies cookies){
         this.cookies = cookies;
+        pauseBtwConnection= 60*1000/connectionLimit;
     }
 
     public Document getDocument(String url){
@@ -32,19 +37,13 @@ public class ConnectionService {
 
             response=connection.execute();
 
-            cookies.setCookies(response.cookies());
+           // cookies.setCookies(response.cookies());
 
             htmlPage = response.parse();
-
-            Connection.Request request= connection.request();
-            cookies.addNewCookies(request.cookies());
+            cookies.addNewCookies(response.cookies());
 
             //logger.info(htmlPage.toString());
-        }
-        catch (IOException ex){logger.warning("Error occurred while parsing "+url);}
-
-
-
+        } catch (IOException ex){logger.warning("Error occurred while parsing "+url);}
 
         return htmlPage;
     }
@@ -64,6 +63,23 @@ public class ConnectionService {
                 .header("Upgrade-Insecure-Requests","1")
                 .followRedirects(true);
 
+    }
+
+    private synchronized boolean allowConnection(){
+
+        boolean allowConnection = false;
+
+        if(lastConnectionTime == 0){
+            lastConnectionTime = System.currentTimeMillis();
+        }
+
+        long afterLastConnection = (int)(System.currentTimeMillis() - lastConnectionTime);
+
+        if(afterLastConnection<pauseBtwConnection){
+
+        }
+
+        return allowConnection;
     }
 
 }

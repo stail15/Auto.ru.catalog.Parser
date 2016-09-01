@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans>
     <bean id="url" class="jsoupParser.service.UrlService">
-        <property name="mainUrl" value="https://auto.ru/"/>
+        <property name="mainUrl" value="https://auto.ru/catalog/"/>
         <property name="cookiesHostName" value="auto.ru"/>
-        <property name="brandClassSeparator" value="a.link.link_metrika.link_theme_auto.link__control.i-bem"/>
+        <property name="brandClassSeparator" value="a.link.link_pseudo.link_theme_auto.search-form-v2-item.link__control.i-bem"/>
         <property name="modelClassSeparator" value="a.link.link_pseudo.link_theme_auto.search-form-v2-item.link__control.i-bem"/>
-        <property name="carBrendAnchor" value="span.breadcrumbs-l_title"/>
-        <property name="carModelAnchor" value="span.breadcrumbs-l.breadcrumbs-l_text"/>
-        <property name="modelGenerationAnchor1" value="a.showcase-generation-title-link"/>
-        <property name="modelGenerationAnchor2" value="td.showcase-list-cell.showcase-list-cell_v2_releaseperiod"/>
-        <property name="modelGenerationAnchor3" value="span.showcase-generation-dates"/>
+        <property name="carClassSeparator" value="a.link.link_pseudo.search-form-v2-list__card-item.search-form-v2-item.link__control.i-bem"/>
     </bean>
 
 </beans>

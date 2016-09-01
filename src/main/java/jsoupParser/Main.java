@@ -5,20 +5,15 @@ import jsoupParser.cookies.Cookies;
 import jsoupParser.cookies.CookiesImpl;
 import jsoupParser.pojo.Car;
 import jsoupParser.service.*;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.jsoup.nodes.Document;
-import org.w3c.dom.NodeList;
-
+import jsoupParser.parsers.*;
+import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -31,7 +26,7 @@ public class Main {
     public static List<String> modelsUrl;
     public static UrlService urlService;
     private static Set<Car> carList;
-    private transient static Cookies cookies;
+    private volatile static Cookies cookies;
     private static ArrayList<Thread> brandThreadsList;
     private static ArrayList<Thread> modelThreadsList;
     private static org.w3c.dom.Document resultDocument;
@@ -42,59 +37,57 @@ public class Main {
         Main.configLogger("/logging.properties");
 
         urlService = Main.getUrlService("/url-config.xml");
-        resultDocument = Main.createResultDocument();
+
         cookies = new CookiesImpl(urlService.getCookiesHostName());
         modelsUrl = Collections.synchronizedList(new ArrayList<>());
         carList = Collections.synchronizedSet(new TreeSet<>((o1, o2) -> o1.toString().compareTo(o2.toString())));
         brandThreadsList = new ArrayList<>();
         modelThreadsList = new ArrayList<>();
 
+        args = new String[]{"D:\\TestTask\\autoruParser\\resultXml.xml"};
+        if(!(args!=null && args.length>0)) {
+            resultDocument = Main.createResultDocument();
 
-        String mainUrl = urlService.getMainUrl();
-        String brandSeparator = urlService.getBrandClassSeparator();
-        String modelSeparator = urlService.getModelClassSeparator();
 
-        logger.info("Parsing car brands...");
-        BrandsParser brandsParser = new BrandsParser(cookies,resultDocument);
-        brandsParser.parseAllBrands(mainUrl, brandSeparator);
-        logger.info("Car brands was parsed.");
+            String mainUrl = urlService.getMainUrl();
+            String brandSeparator = urlService.getBrandClassSeparator();
+            String modelSeparator = urlService.getModelClassSeparator();
 
-        logger.info("Parsing car models...");
-        ModelsParser modelsParser = new ModelsParser(cookies,resultDocument,modelSeparator);
-        modelsParser.parseAllModels();
-        logger.info("Car models was parsed.");
+            logger.info("Parsing car brands...");
+            BrandsParser brandsParser = new BrandsParser(cookies, resultDocument);
+            brandsParser.parseAllBrands(mainUrl, brandSeparator);
+            logger.info("Car brands was parsed.");
 
-        NodeList nodeList = resultDocument.getElementsByTagName("model");
-        for(int i=0;i<nodeList.getLength();i++){
-           System.out.println(((org.w3c.dom.Element) nodeList.item(i)).getAttribute("href"));
+            logger.info("Parsing car models...");
+            ModelsParser modelsParser = new ModelsParser(cookies, resultDocument, modelSeparator);
+            modelsParser.parseAllModels();
+            logger.info("Car models was parsed.");
         }
+        else {
+            loadSourceFile(args[0]);
+
+            String carsSeparator = urlService.getCarClassSeparator();
+            GenerationParser generationParser = new GenerationParser(cookies,resultDocument,carsSeparator);
+            generationParser.parseAllGenerations();
+
+
+
+
+        }
+
+//        NodeList nodeList = resultDocument.getElementsByTagName("model");
+//        for(int i=0;i<nodeList.getLength();i++){
+//           System.out.println(((org.w3c.dom.Element) nodeList.item(i)).getAttribute("href"));
+//        }
+
+        saveResultToFile("D:\\TestTask\\autoruParser\\fullResultXml.xml");
+
 
         System.exit(0);
 
         System.out.println("Final size is " + modelsUrl.size());
 
 
-        for(String link : modelsUrl){ // looking for car model information & creating a new Car
-            ModelUrlParser modelUrlParser = new ModelUrlParser();
-            modelUrlParser.setModelUrl(link);
-            Thread modelThread = new Thread(modelUrlParser);
-            modelThread.start();
-            modelThreadsList.add(modelThread);
-
-            try {
-                Thread.currentThread().sleep(50);
-            }
-            catch (InterruptedException ex){ex.getMessage();}
-        }
-
-        for(Thread th :modelThreadsList){ // the main thread is waiting for other threads
-            try {
-                th.join();
-            }
-            catch (InterruptedException ex){ex.getMessage();}
-        }
-        System.out.println("Final size of carList is " + carList.size());
-        writeToFile(carList);
     }
 
     /**
@@ -165,32 +158,46 @@ public class Main {
         return urlService;
     }
 
-    private static void writeToFile(Set<Car> carList){
 
-        String fileDirectory = "D:\\Auto.ru_16.02";
-        File path = new File(fileDirectory);
-        File file = new File(fileDirectory+"\\CarModelsDate.txt");
-        BufferedWriter fileWriter=null;
+    protected static boolean saveResultToFile(String fileDirectory){
+        boolean saved = false;
 
-        //noinspection ResultOfMethodCallIgnored
-        path.mkdirs();
+        File resultXml = new File(fileDirectory);
+
+
+        TransformerFactory factory = TransformerFactory.newInstance();
+        DOMSource xmlSource = new DOMSource(resultDocument);
+        Transformer xmlTransformer;
+
         try {
-            fileWriter = new BufferedWriter(new FileWriter(file));
+            xmlTransformer= factory.newTransformer();
+            Result resultToFile = new StreamResult(resultXml);
+            xmlTransformer.transform(xmlSource,resultToFile);
+            saved = true;
         }
-        catch (IOException ex){System.out.println("Unable to write file");}
-
-        for(Car car :carList){
-           try {
-               fileWriter.write(car.toString());
-           }
-           catch (IOException ex){ex.getMessage();}
-
+        catch (Exception ex){
+            logger.log(Level.WARNING, "- the result document wasn't saved to file "+resultXml.getAbsolutePath()+" because of the "+ex.getClass().getName(),ex);
         }
+
+
+        return saved;
+    }
+
+    public static void loadSourceFile(String fileName) throws SAXException, IOException,ParserConfigurationException{
+        File sourceXML;
         try {
-            assert fileWriter != null;
-            fileWriter.close();
+            sourceXML = new File(fileName);
+    ;
         }
-        catch (IOException ex){ex.getMessage();}
+        catch (NullPointerException ex){
+            String exceptionMsg = "Configuration file \"" + fileName + "\" was not found";
+            logger.log(Level.SEVERE, exceptionMsg);
+            throw new FileNotFoundException(exceptionMsg);
+        }
+
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        resultDocument= documentBuilder.parse(sourceXML);
 
     }
 

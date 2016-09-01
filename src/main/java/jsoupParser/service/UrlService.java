@@ -8,12 +8,7 @@ public class UrlService {
     private String cookiesHostName;
     private String brandClassSeparator;
     private String modelClassSeparator;
-    private String carBrendAnchor;
-    private String carModelAnchor;
-    private String modelGenerationAnchor1;
-    private String modelGenerationAnchor2;
-    private String modelGenerationAnchor3;
-    private List<String> modelUrlList;
+    private String carClassSeparator;
 
     public String getMainUrl() {
         return mainUrl;
@@ -23,12 +18,12 @@ public class UrlService {
         this.mainUrl = mainUrl;
     }
 
-    public List<String> getModelUrlList() {
-        return modelUrlList;
+    public String getCookiesHostName() {
+        return cookiesHostName;
     }
 
-    public void setModelUrlList(List<String> modelUrlList) {
-        this.modelUrlList = modelUrlList;
+    public void setCookiesHostName(String cookiesHostName) {
+        this.cookiesHostName = cookiesHostName;
     }
 
     public String getBrandClassSeparator() {
@@ -47,66 +42,11 @@ public class UrlService {
         this.modelClassSeparator = modelClassSeparator;
     }
 
-    public String getCarBrendAnchor() {
-        return carBrendAnchor;
+    public String getCarClassSeparator() {
+        return carClassSeparator;
     }
 
-    public void setCarBrendAnchor(String carBrendAnchor) {
-        this.carBrendAnchor = carBrendAnchor;
-    }
-
-    public String getCarModelAnchor() {
-        return carModelAnchor;
-    }
-
-    public void setCarModelAnchor(String carModelAnchor) {
-        this.carModelAnchor = carModelAnchor;
-    }
-
-    public String getModelGenerationAnchor1() {
-        return modelGenerationAnchor1;
-    }
-
-    public void setModelGenerationAnchor1(String modelGenerationAnchor1) {
-        this.modelGenerationAnchor1 = modelGenerationAnchor1;
-    }
-
-    public String getModelGenerationAnchor2() {
-        return modelGenerationAnchor2;
-    }
-
-    public void setModelGenerationAnchor2(String modelGenerationAnchor2) {
-        this.modelGenerationAnchor2 = modelGenerationAnchor2;
-    }
-
-    public String getModelGenerationAnchor3() {
-        return modelGenerationAnchor3;
-    }
-
-    public void setModelGenerationAnchor3(String modelGenerationAnchor3) {
-        this.modelGenerationAnchor3 = modelGenerationAnchor3;
-    }
-
-    public String getCookiesHostName() {
-        return cookiesHostName;
-    }
-
-    public void setCookiesHostName(String cookiesHostName) {
-        this.cookiesHostName = cookiesHostName;
-    }
-
-    @Override
-    public String toString() {
-        return "UrlService{" +"\r\n"+
-                "mainUrl='" + mainUrl + '\'' +"\r\n"+
-                ", brandClassSeparator='" + brandClassSeparator + '\'' +"\r\n"+
-                ", modelClassSeparator='" + modelClassSeparator + '\'' +"\r\n"+
-                ", carBrendAnchor='" + carBrendAnchor + '\'' +"\r\n"+
-                ", carModelAnchor='" + carModelAnchor + '\'' +"\r\n"+
-                ", modelGenerationAnchor1='" + modelGenerationAnchor1 + '\'' +"\r\n"+
-                ", modelGenerationAnchor2='" + modelGenerationAnchor2 + '\'' +"\r\n"+
-                ", modelGenerationAnchor3='" + modelGenerationAnchor3 + '\'' +"\r\n"+
-                ", modelUrlList=" + modelUrlList +
-                '}';
+    public void setCarClassSeparator(String carClassSeparator) {
+        this.carClassSeparator = carClassSeparator;
     }
 }

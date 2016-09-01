@@ -1,6 +1,7 @@
-package jsoupParser.service;
+package jsoupParser.parsers;
 
 import jsoupParser.cookies.Cookies;
+import jsoupParser.service.ConnectionService;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -33,15 +34,17 @@ public class BrandsParser {
 
         if(brandList.size()>0){
 
+            long start = System.currentTimeMillis();
             brandList.forEach(element -> this.getBrand(element));
+            long end = System.currentTimeMillis();
+            logger.info("Time spent - "+(end-start));
             logger.info(url + " was parsed - " + brands.size() + " car brands were found");
+
 
         }
         else {
             logger.warning(url+" was not parsed");
         }
-
-
 
     }
 

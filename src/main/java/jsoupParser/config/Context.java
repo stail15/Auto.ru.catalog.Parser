@@ -64,6 +64,7 @@ public class Context {
         try {
             configXML = new File(Context.class.getResource(fileName).getFile());
            // configXML = new File(ClassLoader.getSystemResource(fileName).getFile());
+            logger.info(configXML.getAbsolutePath());
 
         }
         catch (NullPointerException ex){

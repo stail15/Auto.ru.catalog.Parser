@@ -1,6 +1,7 @@
-package jsoupParser.service;
+package jsoupParser.parsers;
 
 import jsoupParser.cookies.Cookies;
+import jsoupParser.service.ConnectionService;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.w3c.dom.Element;
@@ -20,7 +21,7 @@ public class ModelsParser implements Runnable{
 
     private static Logger logger = Logger.getLogger(BrandsParser.class.getName());
     private Map<String,String> models = Collections.synchronizedMap(new HashMap<String, String>());
-    private static Cookies cookies;
+    private static volatile Cookies cookies;
     private static org.w3c.dom.Document resultDocument;
     private static ArrayList<Thread> threadList;
     private static String modelSeparator;
@@ -68,6 +69,7 @@ public class ModelsParser implements Runnable{
         int length = brandList.getLength();
         if(brandList!=null && length>0){
             for( int i = 0; i<length; i++){
+
                 Element brandElement = (Element)brandList.item(i);
                 Thread thread = new Thread(new ModelsParser(brandElement));
                 threadList.add(thread);
@@ -104,19 +106,20 @@ public class ModelsParser implements Runnable{
 
     private void getModel(org.jsoup.nodes.Element modelElement){
 
-        String catalogUrl = resultDocument.getDocumentElement().getAttribute("href");
-        String carModelUrl = catalogUrl+modelElement.attr("href").split("/")[2]+"/";
+        String rootUrl = resultDocument.getDocumentElement().getAttribute("href").replace("/catalog/","");
+        String carModelUrl = rootUrl+modelElement.attr("href");
         String carModel = modelElement.ownText();
 
         if(!this.models.containsKey(carModel)){
-            org.w3c.dom.Element brand = resultDocument.createElement("model");
-            brand.setAttribute("name",carModel);
-            brand.setAttribute("href",carModelUrl);
-            this.brandElement.appendChild(brand);
+            org.w3c.dom.Element model = resultDocument.createElement("model");
+            model.setAttribute("name", carModel);
+            model.setAttribute("href", carModelUrl);
+            this.brandElement.appendChild(model);
             
-            this.models.put(carModel,carModelUrl);
+            this.models.put(carModel, carModelUrl);
         }
 
     }
+
 
 }
