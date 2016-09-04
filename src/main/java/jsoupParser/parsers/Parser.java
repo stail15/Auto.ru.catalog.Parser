@@ -22,9 +22,7 @@ public class Parser implements Runnable{
     private static String separator;
     private static String carYearsSeparator;
     private static String carGenerationNameSeparator;
-
     private static org.w3c.dom.Document resultDocument;
-
     private Element element;
 
 
@@ -104,12 +102,12 @@ public class Parser implements Runnable{
 
         if(!this.models.contains(elementName)){
 
-            org.w3c.dom.Element parentElement = this.getParentElement();
-            org.w3c.dom.Element childElement = this.getChildElement();
+            org.w3c.dom.Element parentElement = this.element;
+            org.w3c.dom.Element childElement = resultDocument.createElement(nodeName);
             childElement.setAttribute("name", elementName);
             childElement.setAttribute("href", elementUrl);
 
-            if(this.parentNodeName !=null && this.parentNodeName.equals("generation")){
+            if(nodeName !=null && nodeName.equals("generation")){
                 String carYears = element.select(carYearsSeparator).first().ownText();
                 childElement.setAttribute("years", carYears);
             }
@@ -119,30 +117,12 @@ public class Parser implements Runnable{
         }
     }
 
-    private org.w3c.dom.Element getParentElement(){
-        org.w3c.dom.Element parentElement;
-
-        if(this.parentNodeName != null){
-            parentElement = this.element;
-        }
-        else {
-            parentElement = resultDocument.getDocumentElement();
-        }
-
-        return parentElement;
-    }
-
-    private org.w3c.dom.Element getChildElement(){
-        return resultDocument.createElement(nodeName);
-
-    }
-
 
     private String getElementName(org.jsoup.nodes.Element element){
 
         String elementName = null;
 
-        if(this.parentNodeName.equals("generation")) {
+        if(nodeName.equals("generation")) {
 
             org.jsoup.nodes.Element childElement = element.select(carGenerationNameSeparator).first();
 
@@ -167,7 +147,7 @@ public class Parser implements Runnable{
 
     private static void startThread(Thread thread){
         try {
-            Thread.sleep(1000);
+            Thread.sleep(0);
         }
         catch (InterruptedException ex){
             logger.warning("Failed to delay Thread start");

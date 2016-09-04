@@ -43,61 +43,12 @@ public class Main {
         Cookies cookies = new CookiesImpl(urlForCookies);
         resultDocument = Main.createResultDocument(mainURL);
 
-//        args = new String[]{"D:\\TestTask\\autoruParser\\fullResultXml.xml"};
-//        if(!(args!=null && args.length>0)) {
-//            resultDocument = Main.createResultDocument();
-//
-//
-//            String mainUrl = urlService.getMainUrl();
-//            String brandSeparator = urlService.getBrandSeparator();
-//            String modelSeparator = urlService.getModelSeparator();
-//            String carsSeparator = urlService.getGenerationSeparator();
-//
-//            logger.info("Parsing car brands...");
-//            BrandsParser brandsParser = new BrandsParser(cookies, resultDocument);
-//            brandsParser.parseAllBrands(mainUrl, brandSeparator);
-//            logger.info("Car brands was parsed.");
-//
-//            logger.info("Parsing car models...");
-//            ModelsParser modelsParser = new ModelsParser(cookies, resultDocument, modelSeparator);
-//            modelsParser.parseAllModels();
-//            logger.info("Car models was parsed.");
-//
-//            logger.info("Parsing car generations...");
-//            GenerationParser generationParser = new GenerationParser(cookies,resultDocument,carsSeparator);
-//            generationParser.parseAllGenerations();
-//            logger.info("Parsing car generations...");
-//        }
-//        else {
-//            loadSourceFile(args[0]);
-//
-//
-//            ResTransformer resTransformer = new ResTransformer(resultDocument);
-//            resTransformer.processCarsRestyling("brand");
-//            resTransformer.saveResultToFile("D:\\TestTask\\autoruParser\\fullResultXml.xml");
-//
-//
-//            File resultHTML = resTransformer.produceHTML();
-//
-//
-//            try {
-//                if (resultHTML!=null){
-//                    Desktop.getDesktop().browse(resultHTML.toURI());
-//                }
-//            }
-//            catch (UnsupportedOperationException | IOException ex){
-//                logger.log(Level.WARNING,
-//                        " - the result file can not be displayed in HTML because of the "
-//                        + ex.getMessage()
-//                        + ":", ex);
-//            }
-//
-//            logger.info(" - the result XML file was successfully displayed in HTML.");
-//
-//        }
 
         ConnectionService.setCookies(cookies);
         Parser.setResultDocument(resultDocument);
+
+//        args = new String[]{"D:\\TestTask\\autoruParser\\fullResultXml.xml"};
+//        loadSourceFile(args[0]);
 
         Parser brandParser = new Parser(brandSeparator);
         Parser.setNodeName("brand");
@@ -107,16 +58,16 @@ public class Main {
         Parser.setNodeName("model");
         modelParser.parse("brand");
 
-        Parser generationParser = new Parser(generationSeparator);
-        Parser.setCarGenerationNameSeparator(carGenerationNameSeparator);
-        Parser.setCarYearsSeparator(carYearsSeparator);
-        Parser.setNodeName("generation");
-        generationParser.parse("model");
+//        Parser generationParser = new Parser(generationSeparator);
+//        Parser.setCarGenerationNameSeparator(carGenerationNameSeparator);
+//        Parser.setCarYearsSeparator(carYearsSeparator);
+//        Parser.setNodeName("generation");
+//        generationParser.parse("model");
 
 
         ResTransformer resTransformer = new ResTransformer(resultDocument);
         resTransformer.aggregateCarsRestyling();
-        resTransformer.saveResultToFile("D:\\TestTask\\autoruParser\\fullResultXml.xml");
+        resTransformer.saveResultToFile("D:\\TestTask\\autoruParser\\modelResultXml.xml");
 
         File resultHTML = resTransformer.produceHTML();
         Main.showOnDisplay(resultHTML);

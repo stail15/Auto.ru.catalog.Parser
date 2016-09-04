@@ -4,6 +4,7 @@ import jsoupParser.cookies.Cookies;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -34,13 +35,21 @@ public class ConnectionService {
 
             response=connection.execute();
 
-
-
             htmlPage = response.parse();
             cookies.addNewCookies(response.cookies());
 
 
         } catch (IOException ex){logger.warning("Error occurred while parsing "+url);}
+
+        htmlPage = this.removeCaptcha(htmlPage);
+
+        return htmlPage;
+    }
+
+
+    private Document removeCaptcha(Document htmlPage){
+        Element element = htmlPage.select("div.form.form_state_image.form_error_no.form_audio_yes.i-bem").first();
+
 
         return htmlPage;
     }

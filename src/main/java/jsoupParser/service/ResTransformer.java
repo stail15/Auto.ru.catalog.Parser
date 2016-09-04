@@ -37,7 +37,7 @@ public class ResTransformer {
 
     public Document aggregateCarsRestyling(){
         Element rootElement = resultDocument.getDocumentElement();
-        NodeList allBrands = rootElement.getChildNodes();
+        NodeList allBrands = rootElement.getElementsByTagName("brand");
 
         int nodeListLength = allBrands.getLength();
 
