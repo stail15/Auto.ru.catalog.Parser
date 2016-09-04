@@ -3,9 +3,11 @@
     <bean id="url" class="jsoupParser.service.UrlService">
         <property name="mainUrl" value="https://auto.ru/catalog/"/>
         <property name="cookiesHostName" value="auto.ru"/>
-        <property name="brandClassSeparator" value="a.link.link_pseudo.link_theme_auto.search-form-v2-item.link__control.i-bem"/>
-        <property name="modelClassSeparator" value="a.link.link_pseudo.link_theme_auto.search-form-v2-item.link__control.i-bem"/>
-        <property name="carClassSeparator" value="a.link.link_pseudo.search-form-v2-list__card-item.search-form-v2-item.link__control.i-bem"/>
+        <property name="brandSeparator" value="a.link.link_pseudo.link_theme_auto.search-form-v2-item.link__control.i-bem"/>
+        <property name="modelSeparator" value="a.link.link_pseudo.link_theme_auto.search-form-v2-item.link__control.i-bem"/>
+        <property name="generationSeparator" value="a.link.link_pseudo.search-form-v2-list__card-item.search-form-v2-item.link__control.i-bem"/>
+        <property name="carYearsSeparator" value="div.search-form-v2-list__card-title"/>
+        <property name="carGenerationNameSeparator" value="div.search-form-v2-list__card-text"/>
     </bean>
 
 </beans>

@@ -9,7 +9,7 @@
     <url>http://maven.apache.org</url>
     <inceptionYear>2016</inceptionYear>
 
-    <description> This application is used retrieve auto catalog tree from site auto.ru .</description>
+    <description> This application is used to retrieve auto catalog tree from site auto.ru .</description>
 
     <developers>
         <developer>
@@ -22,6 +22,7 @@
 
     <prerequisites>
         <maven>3.0.4</maven>
+
     </prerequisites>
 
     <properties>
@@ -80,6 +81,8 @@
                 <includes>
                     <include>**/*.properties</include>
                     <include>**/*.xml</include>
+                    <include>**/*.xsl</include>
+
                 </includes>
             </resource>
         </resources>
@@ -91,6 +94,7 @@
                     <include>**/*.properties</include>
                     <include>**/*.xsl</include>
                     <include>**/*.xml</include>
+
                 </includes>
             </testResource>
         </testResources>

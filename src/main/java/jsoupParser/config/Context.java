@@ -63,8 +63,6 @@ public class Context {
         File configXML;
         try {
             configXML = new File(Context.class.getResource(fileName).getFile());
-           // configXML = new File(ClassLoader.getSystemResource(fileName).getFile());
-            logger.info(configXML.getAbsolutePath());
 
         }
         catch (NullPointerException ex){
@@ -261,9 +259,8 @@ public class Context {
 
         char[] chars = fieldName.trim().toCharArray();
         chars[0] = Character.toUpperCase(chars[0]);
-        String methodName = new StringBuilder("set").append(chars).toString();
 
-        return methodName;
+        return new StringBuilder("set").append(chars).toString();
     }
 
     /**

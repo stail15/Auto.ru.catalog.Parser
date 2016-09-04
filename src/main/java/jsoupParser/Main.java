@@ -3,18 +3,16 @@ package jsoupParser;
 import jsoupParser.config.Context;
 import jsoupParser.cookies.Cookies;
 import jsoupParser.cookies.CookiesImpl;
-import jsoupParser.pojo.Car;
 import jsoupParser.service.*;
 import jsoupParser.parsers.*;
 import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -23,12 +21,7 @@ import java.util.logging.Logger;
 public class Main {
 
     private static Logger logger = Logger.getLogger(Context.class.getName());
-    public static List<String> modelsUrl;
-    public static UrlService urlService;
-    private static Set<Car> carList;
-    private volatile static Cookies cookies;
-    private static ArrayList<Thread> brandThreadsList;
-    private static ArrayList<Thread> modelThreadsList;
+
     private static org.w3c.dom.Document resultDocument;
 
 
@@ -36,56 +29,99 @@ public class Main {
 
         Main.configLogger("/logging.properties");
 
-        urlService = Main.getUrlService("/url-config.xml");
+        UrlService urlService = Main.getUrlService("/url-config.xml");
 
-        cookies = new CookiesImpl(urlService.getCookiesHostName());
-        modelsUrl = Collections.synchronizedList(new ArrayList<>());
-        carList = Collections.synchronizedSet(new TreeSet<>((o1, o2) -> o1.toString().compareTo(o2.toString())));
-        brandThreadsList = new ArrayList<>();
-        modelThreadsList = new ArrayList<>();
-
-        args = new String[]{"D:\\TestTask\\autoruParser\\resultXml.xml"};
-        if(!(args!=null && args.length>0)) {
-            resultDocument = Main.createResultDocument();
+        String mainURL = urlService.getMainUrl();
+        String urlForCookies = urlService.getCookiesHostName();
+        String brandSeparator = urlService.getBrandSeparator();
+        String modelSeparator = urlService.getModelSeparator();
+        String generationSeparator = urlService.getGenerationSeparator();
+        String carYearsSeparator = urlService.getCarYearsSeparator();
+        String carGenerationNameSeparator = urlService.getCarGenerationNameSeparator();
 
 
-            String mainUrl = urlService.getMainUrl();
-            String brandSeparator = urlService.getBrandClassSeparator();
-            String modelSeparator = urlService.getModelClassSeparator();
+        Cookies cookies = new CookiesImpl(urlForCookies);
+        resultDocument = Main.createResultDocument(mainURL);
 
-            logger.info("Parsing car brands...");
-            BrandsParser brandsParser = new BrandsParser(cookies, resultDocument);
-            brandsParser.parseAllBrands(mainUrl, brandSeparator);
-            logger.info("Car brands was parsed.");
-
-            logger.info("Parsing car models...");
-            ModelsParser modelsParser = new ModelsParser(cookies, resultDocument, modelSeparator);
-            modelsParser.parseAllModels();
-            logger.info("Car models was parsed.");
-        }
-        else {
-            loadSourceFile(args[0]);
-
-            String carsSeparator = urlService.getCarClassSeparator();
-            GenerationParser generationParser = new GenerationParser(cookies,resultDocument,carsSeparator);
-            generationParser.parseAllGenerations();
-
-
-
-
-        }
-
-//        NodeList nodeList = resultDocument.getElementsByTagName("model");
-//        for(int i=0;i<nodeList.getLength();i++){
-//           System.out.println(((org.w3c.dom.Element) nodeList.item(i)).getAttribute("href"));
+//        args = new String[]{"D:\\TestTask\\autoruParser\\fullResultXml.xml"};
+//        if(!(args!=null && args.length>0)) {
+//            resultDocument = Main.createResultDocument();
+//
+//
+//            String mainUrl = urlService.getMainUrl();
+//            String brandSeparator = urlService.getBrandSeparator();
+//            String modelSeparator = urlService.getModelSeparator();
+//            String carsSeparator = urlService.getGenerationSeparator();
+//
+//            logger.info("Parsing car brands...");
+//            BrandsParser brandsParser = new BrandsParser(cookies, resultDocument);
+//            brandsParser.parseAllBrands(mainUrl, brandSeparator);
+//            logger.info("Car brands was parsed.");
+//
+//            logger.info("Parsing car models...");
+//            ModelsParser modelsParser = new ModelsParser(cookies, resultDocument, modelSeparator);
+//            modelsParser.parseAllModels();
+//            logger.info("Car models was parsed.");
+//
+//            logger.info("Parsing car generations...");
+//            GenerationParser generationParser = new GenerationParser(cookies,resultDocument,carsSeparator);
+//            generationParser.parseAllGenerations();
+//            logger.info("Parsing car generations...");
+//        }
+//        else {
+//            loadSourceFile(args[0]);
+//
+//
+//            ResTransformer resTransformer = new ResTransformer(resultDocument);
+//            resTransformer.processCarsRestyling("brand");
+//            resTransformer.saveResultToFile("D:\\TestTask\\autoruParser\\fullResultXml.xml");
+//
+//
+//            File resultHTML = resTransformer.produceHTML();
+//
+//
+//            try {
+//                if (resultHTML!=null){
+//                    Desktop.getDesktop().browse(resultHTML.toURI());
+//                }
+//            }
+//            catch (UnsupportedOperationException | IOException ex){
+//                logger.log(Level.WARNING,
+//                        " - the result file can not be displayed in HTML because of the "
+//                        + ex.getMessage()
+//                        + ":", ex);
+//            }
+//
+//            logger.info(" - the result XML file was successfully displayed in HTML.");
+//
 //        }
 
-        saveResultToFile("D:\\TestTask\\autoruParser\\fullResultXml.xml");
+        ConnectionService.setCookies(cookies);
+        Parser.setResultDocument(resultDocument);
+
+        Parser brandParser = new Parser(brandSeparator);
+        Parser.setNodeName("brand");
+        brandParser.parse("cars");
+
+        Parser modelParser = new Parser(modelSeparator);
+        Parser.setNodeName("model");
+        modelParser.parse("brand");
+
+        Parser generationParser = new Parser(generationSeparator);
+        Parser.setCarGenerationNameSeparator(carGenerationNameSeparator);
+        Parser.setCarYearsSeparator(carYearsSeparator);
+        Parser.setNodeName("generation");
+        generationParser.parse("model");
 
 
-        System.exit(0);
+        ResTransformer resTransformer = new ResTransformer(resultDocument);
+        resTransformer.aggregateCarsRestyling();
+        resTransformer.saveResultToFile("D:\\TestTask\\autoruParser\\fullResultXml.xml");
 
-        System.out.println("Final size is " + modelsUrl.size());
+        File resultHTML = resTransformer.produceHTML();
+        Main.showOnDisplay(resultHTML);
+
+
 
 
     }
@@ -99,7 +135,7 @@ public class Main {
      *                                     to configure {@link java.util.logging.LogManager LogManager}.
      * @return boolean {@code true} if LogManager was successfully configured; returns {@code false} otherwise.
      */
-    public static boolean configLogger(String propertiesFile){
+    private static boolean configLogger(String propertiesFile){
         boolean configured = false;
         try {
 
@@ -122,7 +158,7 @@ public class Main {
     }
 
 
-    private static org.w3c.dom.Document createResultDocument(){
+    private static org.w3c.dom.Document createResultDocument(String mainURL) throws ParserConfigurationException{
         org.w3c.dom.Document resultDocument = null;
         logger.info("Preparing result document:");
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -135,12 +171,13 @@ public class Main {
         catch (ParserConfigurationException ex){
             logger.log(Level.SEVERE, " - the result document wasn't created:");
             logger.log(Level.SEVERE, " - the application execution is stopped because of the ParserConfigurationException", ex);
-            return null;
+            throw ex;
         }
+
         if(documentBuilder!=null){
             resultDocument = documentBuilder.newDocument();
             org.w3c.dom.Element rootElement = resultDocument.createElement("cars");
-            rootElement.setAttribute("href","https://auto.ru/catalog/");
+            rootElement.setAttribute("href",mainURL);
             resultDocument.appendChild(rootElement);
         }
 
@@ -153,41 +190,17 @@ public class Main {
     private static UrlService getUrlService(String filepath) throws Exception{
         Context context = new Context();
         context.loadConfiguration(filepath);
-        UrlService urlService = (UrlService)context.loadBean(UrlService.class);
 
-        return urlService;
+        return (UrlService)context.loadBean(UrlService.class);
     }
 
 
-    protected static boolean saveResultToFile(String fileDirectory){
-        boolean saved = false;
 
-        File resultXml = new File(fileDirectory);
-
-
-        TransformerFactory factory = TransformerFactory.newInstance();
-        DOMSource xmlSource = new DOMSource(resultDocument);
-        Transformer xmlTransformer;
-
-        try {
-            xmlTransformer= factory.newTransformer();
-            Result resultToFile = new StreamResult(resultXml);
-            xmlTransformer.transform(xmlSource,resultToFile);
-            saved = true;
-        }
-        catch (Exception ex){
-            logger.log(Level.WARNING, "- the result document wasn't saved to file "+resultXml.getAbsolutePath()+" because of the "+ex.getClass().getName(),ex);
-        }
-
-
-        return saved;
-    }
 
     public static void loadSourceFile(String fileName) throws SAXException, IOException,ParserConfigurationException{
         File sourceXML;
         try {
             sourceXML = new File(fileName);
-    ;
         }
         catch (NullPointerException ex){
             String exceptionMsg = "Configuration file \"" + fileName + "\" was not found";
@@ -201,4 +214,19 @@ public class Main {
 
     }
 
+
+    public static void showOnDisplay(File file){
+        try {
+            if (file!=null){
+                Desktop.getDesktop().browse(file.toURI());
+            }
+        }
+        catch (UnsupportedOperationException | IOException ex){
+            logger.log(Level.WARNING,
+                    " - the result file can not be displayed in HTML because of the " + ex.getMessage()
+                            + ":", ex);
+        }
+
+        logger.info(" - the result XML file was successfully displayed in HTML.");
+    }
 }

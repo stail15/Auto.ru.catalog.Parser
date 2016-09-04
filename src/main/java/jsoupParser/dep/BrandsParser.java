@@ -1,4 +1,4 @@
-package jsoupParser.parsers;
+package jsoupParser.dep;
 
 import jsoupParser.cookies.Cookies;
 import jsoupParser.service.ConnectionService;
@@ -11,9 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-/**
- * Created by stail on 19.08.2016.
- */
+
 public class BrandsParser {
 
     private static Logger logger = Logger.getLogger(BrandsParser.class.getName());
@@ -34,12 +32,8 @@ public class BrandsParser {
 
         if(brandList.size()>0){
 
-            long start = System.currentTimeMillis();
             brandList.forEach(element -> this.getBrand(element));
-            long end = System.currentTimeMillis();
-            logger.info("Time spent - "+(end-start));
             logger.info(url + " was parsed - " + brands.size() + " car brands were found");
-
 
         }
         else {
@@ -63,6 +57,7 @@ public class BrandsParser {
             this.brands.put(carBrand,carBrandUrl);
         }
 
-
     }
+
+
 }

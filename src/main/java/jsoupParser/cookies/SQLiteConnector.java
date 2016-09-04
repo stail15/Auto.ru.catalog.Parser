@@ -10,12 +10,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class SQLiteConnector {
+class SQLiteConnector {
 
-    private static Logger logger= Logger.getLogger(SQLiteConnector.class.getName());
+    private static final Logger logger= Logger.getLogger(SQLiteConnector.class.getName());
     private static Connection connection;
 
-    public static Connection getConnection() throws ClassNotFoundException {
+    private static Connection getConnection() throws ClassNotFoundException {
 
         Class.forName("org.sqlite.JDBC");
 

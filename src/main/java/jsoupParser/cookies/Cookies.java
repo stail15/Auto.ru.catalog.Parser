@@ -2,14 +2,12 @@ package jsoupParser.cookies;
 
 import java.util.Map;
 
-/**
- * Created by stail on 19.08.2016.
- */
+
 public interface Cookies {
-    public String getHostName();
-    public void setHostName(String hostName);
-    public Map<String,String > getCookies();
-    public void setCookies(Map<String,String> cookiesToSet);
-    public void addNewCookies(Map<String,String> cookiesToAdd);
+    String getHostName();
+    void setHostName(String hostName);
+    Map<String,String > getCookies();
+    void setCookies(Map<String, String> cookiesToSet);
+    void addNewCookies(Map<String, String> cookiesToAdd);
 
 }

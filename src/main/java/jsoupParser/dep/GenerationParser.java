@@ -1,4 +1,4 @@
-package jsoupParser.parsers;
+package jsoupParser.dep;
 
 import jsoupParser.cookies.Cookies;
 import jsoupParser.service.ConnectionService;

@@ -8,22 +8,19 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-/**
- * Created by stail on 19.08.2016.
- */
+
 public class ConnectionService {
 
-    private static Logger logger = Logger.getLogger(ConnectionService.class.getName());
+    private static final Logger logger = Logger.getLogger(ConnectionService.class.getName());
     private static volatile   long lastConnectionTime = 0;
-    private static int connectionLimit = 70;
     private static long pauseBtwConnection;
     private Document htmlPage;
-    private volatile Cookies cookies;
+    private volatile static Cookies cookies;
 
 
-    public ConnectionService(Cookies cookies){
-        this.cookies = cookies;
-        pauseBtwConnection= 60*1000/connectionLimit;
+    public ConnectionService(){
+        int connectionLimit = 70;
+        pauseBtwConnection= 60*1000/ connectionLimit;
     }
 
     public Document getDocument(String url){
@@ -37,12 +34,12 @@ public class ConnectionService {
 
             response=connection.execute();
 
-           // cookies.setCookies(response.cookies());
+
 
             htmlPage = response.parse();
             cookies.addNewCookies(response.cookies());
 
-            //logger.info(htmlPage.toString());
+
         } catch (IOException ex){logger.warning("Error occurred while parsing "+url);}
 
         return htmlPage;
@@ -82,4 +79,7 @@ public class ConnectionService {
         return allowConnection;
     }
 
+    public static void setCookies(Cookies cookies) {
+        ConnectionService.cookies = cookies;
+    }
 }

@@ -1,14 +1,14 @@
 package jsoupParser.service;
 
-import java.util.List;
-
 
 public class UrlService {
     private String mainUrl;
     private String cookiesHostName;
-    private String brandClassSeparator;
-    private String modelClassSeparator;
-    private String carClassSeparator;
+    private String brandSeparator;
+    private String modelSeparator;
+    private String generationSeparator;
+    private String carGenerationNameSeparator;
+    private String carYearsSeparator;
 
     public String getMainUrl() {
         return mainUrl;
@@ -26,27 +26,43 @@ public class UrlService {
         this.cookiesHostName = cookiesHostName;
     }
 
-    public String getBrandClassSeparator() {
-        return brandClassSeparator;
+    public String getBrandSeparator() {
+        return brandSeparator;
     }
 
-    public void setBrandClassSeparator(String brandClassSeparator) {
-        this.brandClassSeparator = brandClassSeparator;
+    public void setBrandSeparator(String brandSeparator) {
+        this.brandSeparator = brandSeparator;
     }
 
-    public String getModelClassSeparator() {
-        return modelClassSeparator;
+    public String getModelSeparator() {
+        return modelSeparator;
     }
 
-    public void setModelClassSeparator(String modelClassSeparator) {
-        this.modelClassSeparator = modelClassSeparator;
+    public void setModelSeparator(String modelSeparator) {
+        this.modelSeparator = modelSeparator;
     }
 
-    public String getCarClassSeparator() {
-        return carClassSeparator;
+    public String getGenerationSeparator() {
+        return generationSeparator;
     }
 
-    public void setCarClassSeparator(String carClassSeparator) {
-        this.carClassSeparator = carClassSeparator;
+    public void setGenerationSeparator(String generationSeparator) {
+        this.generationSeparator = generationSeparator;
+    }
+
+    public String getCarYearsSeparator() {
+        return carYearsSeparator;
+    }
+
+    public void setCarYearsSeparator(String carYearsSeparator) {
+        this.carYearsSeparator = carYearsSeparator;
+    }
+
+    public String getCarGenerationNameSeparator() {
+        return carGenerationNameSeparator;
+    }
+
+    public void setCarGenerationNameSeparator(String carGenerationNameSeparator) {
+        this.carGenerationNameSeparator = carGenerationNameSeparator;
     }
 }

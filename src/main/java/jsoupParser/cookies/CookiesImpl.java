@@ -1,7 +1,6 @@
 package jsoupParser.cookies;
 
 
-import java.beans.Statement;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.logging.Level;
@@ -11,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class CookiesImpl implements Cookies{
 
-    private static Logger logger = Logger.getLogger(CookiesImpl.class.getName());
+    private static final Logger logger = Logger.getLogger(CookiesImpl.class.getName());
     private static Map<String,String> cookies;
     private String hostName;
     /**
@@ -76,6 +75,6 @@ public class CookiesImpl implements Cookies{
 
     @Override
     public void addNewCookies(Map<String,String> cookiesToAdd){
-        cookiesToAdd.forEach((k,v)->cookies.put(k,v));
+        cookiesToAdd.forEach(cookies::put);
     }
 }
